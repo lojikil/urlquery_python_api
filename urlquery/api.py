@@ -3,17 +3,13 @@
 
 try:
     import simplejson as json
-except:
+except ImportError:
     import json
 
 import requests
 from dateutil.parser import parse
 from datetime import datetime, timedelta
 import time
-try:
-    from apikey import key
-except:
-    key = ''
 
 base_url = 'https://uqapi.net/v3/json'
 gzip_default = False
@@ -21,7 +17,8 @@ gzip_default = False
 __feed_type = ['unfiltered', 'flagged']
 __intervals = ['hour', 'day']
 __priorities = ['urlfeed', 'low', 'medium', 'high']
-__search_types = ['string', 'regexp', 'ids_alert', 'urlquery_alert', 'js_script_hash']
+__search_types = ['string', 'regexp', 'ids_alert',
+                  'urlquery_alert', 'js_script_hash']
 __result_types = ['reports', 'url_list']
 __url_matchings = ['url_host', 'url_path']
 
@@ -33,12 +30,14 @@ def __set_default_values(gzip=False):
         to_return['gzip'] = True
     return to_return
 
+
 def __query(query, gzip=False):
     if query.get('error') is not None:
         return query
     query.update(__set_default_values(gzip))
     r = requests.post(base_url, data=json.dumps(query))
     return r.json()
+
 
 def urlfeed(feed='unfiltered', interval='hour', timestamp=None):
     """
@@ -71,17 +70,19 @@ def urlfeed(feed='unfiltered', interval='hour', timestamp=None):
             :return: URLFEED
 
                 {
-                    "start_time"    : string,
-                    "end_time"      : string,
-                    "feed"          : [URLs]    Array of URL objects (see README)
+                    "start_time" : string,
+                    "end_time"   : string,
+                    "feed"       : [URLs]    Array of URL objects (see README)
                 }
 
     """
     query = {'method': 'urlfeed'}
     if feed not in __feed_type:
-        query.update({'error': 'Feed can only be in ' + ', '.join(__feed_type)})
+        query.update({'error':
+                      'Feed can only be in ' + ', '.join(__feed_type)})
     if interval not in __intervals:
-        query.update({'error': 'Interval can only be in ' + ', '.join(__intervals)})
+        query.update({'error':
+                      'Interval can only be in ' + ', '.join(__intervals)})
     if timestamp is None:
         ts = datetime.now()
         if interval == 'hour':
@@ -93,15 +94,17 @@ def urlfeed(feed='unfiltered', interval='hour', timestamp=None):
         try:
             timestamp = time.mktime(parse(timestamp).utctimetuple())
         except:
-            query.update({'error': 'Unable to convert time to timestamp: ' + str(time)})
+            query.update({'error':
+                          'Unable to convert time to timestamp: ' + str(time)})
     query['feed'] = feed
     query['interval'] = interval
     query['timestamp'] = timestamp
     return __query(query)
 
+
 def submit(url, useragent=None, referer=None, priority='low',
-        access_level='public', callback_url=None, submit_vt=False,
-        save_only_alerted=False):
+           access_level='public', callback_url=None, submit_vt=False,
+           save_only_alerted=False):
     """
         Submits an URL for analysis.
 
@@ -169,7 +172,8 @@ def submit(url, useragent=None, referer=None, priority='low',
     if priority not in __priorities:
         query.update({'error': 'priority must be in '+', '.join(__priorities)})
     if access_level not in __access_levels:
-        query.update({'error': 'assess_level must be in '+', '.join(__access_levels)})
+        query.update({'error':
+                      'assess_level must be in '+', '.join(__access_levels)})
     query['url'] = url
     if useragent is not None:
         query['useragent'] = useragent
@@ -185,6 +189,7 @@ def submit(url, useragent=None, referer=None, priority='low',
         query['save_only_alerted'] = True
     return __query(query)
 
+
 def user_agent_list():
     """
         Returns a list of accepted user agent strings. These might
@@ -195,8 +200,9 @@ def user_agent_list():
     query = {'method': 'user_agent_list'}
     return __query(query)
 
+
 def mass_submit(urls, useragent=None, referer=None,
-        access_level='public', priority='low', callback_url=None):
+                access_level='public', priority='low', callback_url=None):
     """
         See submit for details. All URLs will be queued with the same settings.
 
@@ -208,7 +214,8 @@ def mass_submit(urls, useragent=None, referer=None,
     """
     query = {'method': 'mass_submit'}
     if access_level not in __access_levels:
-        query.update({'error': 'assess_level must be in '+', '.join(__access_levels)})
+        query.update({'error':
+                      'assess_level must be in '+', '.join(__access_levels)})
     if priority not in __priorities:
         query.update({'error': 'priority must be in '+', '.join(__priorities)})
     if useragent is not None:
@@ -220,6 +227,7 @@ def mass_submit(urls, useragent=None, referer=None,
     if callback_url is not None:
         query['callback_url'] = callback_url
     return __query(query)
+
 
 def queue_status(queue_id):
     """
@@ -236,7 +244,7 @@ def queue_status(queue_id):
 
 
 def report(report_id, recent_limit=0, include_details=False,
-        include_screenshot=False, include_domain_graph=False):
+           include_screenshot=False, include_domain_graph=False):
     """
         This extracts data for a given report, the amount of data and
         what is included is dependent on the parameters set and the
@@ -290,6 +298,7 @@ def report(report_id, recent_limit=0, include_details=False,
         query['include_domain_graph'] = True
     return __query(query)
 
+
 def report_list(timestamp=None, limit=50):
     """
     Returns a list of reports created from the given timestamp, if it’s
@@ -324,13 +333,15 @@ def report_list(timestamp=None, limit=50):
         try:
             timestamp = time.mktime(parse(timestamp).utctimetuple())
         except:
-            query.update({'error': 'Unable to convert time to timestamp: ' + str(time)})
+            query.update({'error':
+                          'Unable to convert time to timestamp: ' + str(time)})
     query['timestamp'] = timestamp
     query['limit'] = limit
     return __query(query)
 
+
 def search(q, search_type='string', result_type='reports',
-    url_matching='url_host', date_from=None, deep=False):
+           url_matching='url_host', date_from=None, deep=False):
     """
         Search in the database
 
@@ -370,11 +381,17 @@ def search(q, search_type='string', result_type='reports',
     """
     query = {'method': 'search'}
     if search_type not in __search_types:
-        query.update({'error': 'search_type can only be in ' + ', '.join(__search_types)})
+        query.update({'error':
+                      'search_type can only be in '
+                      + ', '.join(__search_types)})
     if result_type not in __result_types:
-        query.update({'error': 'result_type can only be in ' + ', '.join(__result_types)})
+        query.update({'error':
+                      'result_type can only be in '
+                      + ', '.join(__result_types)})
     if url_matching not in __url_matchings:
-        query.update({'error': 'url_matching can only be in ' + ', '.join(__url_matchings)})
+        query.update({'error':
+                      'url_matching can only be in '
+                      + ', '.join(__url_matchings)})
 
     if date_from is None:
         ts = datetime.now()
@@ -383,7 +400,9 @@ def search(q, search_type='string', result_type='reports',
         try:
             timestamp = time.mktime(parse(date_from).utctimetuple())
         except:
-            query.update({'error': 'Unable to convert time to timestamp: ' + str(time)})
+            query.update({'error':
+                          'Unable to convert time to timestamp: '
+                          + str(time)})
 
     query['q'] = q
     query['search_type'] = search_type
@@ -393,6 +412,7 @@ def search(q, search_type='string', result_type='reports',
     if deep:
         query['deep'] = True
     return __query(query)
+
 
 def reputation(q):
     """
@@ -408,4 +428,3 @@ def reputation(q):
     query = {'method': 'reputation'}
     query['q'] = q
     return __query(query)
-
