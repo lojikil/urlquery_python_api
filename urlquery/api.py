@@ -170,10 +170,12 @@ def submit(url, useragent=None, referer=None, priority='low',
     """
     query = {'method': 'submit'}
     if priority not in __priorities:
-        query.update({'error': 'priority must be in '+', '.join(__priorities)})
+        query.update({'error':
+                      'priority must be in ' + ', '.join(__priorities)})
     if access_level not in __access_levels:
         query.update({'error':
-                      'assess_level must be in '+', '.join(__access_levels)})
+                      'assess_level must be in '
+                      + ', '.join(__access_levels)})
     query['url'] = url
     if useragent is not None:
         query['useragent'] = useragent
