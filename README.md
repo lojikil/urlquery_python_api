@@ -20,7 +20,7 @@ returned is determined by the key and its associated permissions.
 
 
 Note: The access of the default key (no key) is very limited, even more than
-whatis accessible on the public site.
+what is accessible on the public site.
 
 API calls
 =========
@@ -106,6 +106,10 @@ To get the responses of the api gzip'ed, change 'gzip_default' to True.
 
 Dependencies
 ============
+
+If `pip` is available, any prerequirements may be added via the usual "requirements" dance:
+
+`pip install -r requirements.txt`
 
 Hard:
 
