@@ -11,8 +11,11 @@ from dateutil.parser import parse
 from datetime import datetime, timedelta
 import time
 
+
 base_url = 'https://uqapi.net/v3/json'
-gzip_default = False
+
+# XXX: the sheer number of globals makes me wonder if
+#      this wouldn't be better as a class...
 
 __feed_type = ['unfiltered', 'flagged']
 __intervals = ['hour', 'day']
@@ -21,25 +24,35 @@ __search_types = ['string', 'regexp', 'ids_alert',
                   'urlquery_alert', 'js_script_hash']
 __result_types = ['reports', 'url_list']
 __url_matchings = ['url_host', 'url_path']
+cfg = None
 
-
-def __set_default_values(gzip=False):
+def __set_default_values(gzip=False, apikey=None):
     to_return = {}
-    to_return['key'] = key
-    if gzip_default or gzip:
+
+    if apikey is not None:
+        to_return['key'] = apikey
+    else:
+        to_return['key'] = ''
+
+    if gzip:
         to_return['gzip'] = True
+
     return to_return
 
 
-def __query(query, gzip=False):
+def __query(query, gzip=False, apikey=None):
     if query.get('error') is not None:
         return query
-    query.update(__set_default_values(gzip))
+    query.update(__set_default_values(gzip, apikey))
     r = requests.post(base_url, data=json.dumps(query))
     return r.json()
 
+# XXX: Kinda messy to have `gzip` passed into each URL feed...
+#      almost need an "initial" setup function, kinda like 
+#      an initializer...
 
-def urlfeed(feed='unfiltered', interval='hour', timestamp=None):
+def urlfeed(feed='unfiltered', interval='hour', timestamp=None,
+            gzip=False, apikey=None):
     """
         The urlfeed function is used to access the main feed of URL from
         the service. Currently there are two distinct feed:
@@ -99,12 +112,12 @@ def urlfeed(feed='unfiltered', interval='hour', timestamp=None):
     query['feed'] = feed
     query['interval'] = interval
     query['timestamp'] = timestamp
-    return __query(query)
+    return __query(query, gzip, apikey)
 
 
 def submit(url, useragent=None, referer=None, priority='low',
            access_level='public', callback_url=None, submit_vt=False,
-           save_only_alerted=False):
+           save_only_alerted=False, gzip=False, apikey=None):
     """
         Submits an URL for analysis.
 
@@ -189,10 +202,10 @@ def submit(url, useragent=None, referer=None, priority='low',
         query['submit_vt'] = True
     if save_only_alerted:
         query['save_only_alerted'] = True
-    return __query(query)
+    return __query(query, gzip, apikey)
 
 
-def user_agent_list():
+def user_agent_list(gzip=False, apikey=None):
     """
         Returns a list of accepted user agent strings. These might
         change over time, select one from the returned list.
@@ -200,11 +213,12 @@ def user_agent_list():
         :return: A list of accepted user agents
     """
     query = {'method': 'user_agent_list'}
-    return __query(query)
+    return __query(query, gzip, apikey)
 
 
 def mass_submit(urls, useragent=None, referer=None,
-                access_level='public', priority='low', callback_url=None):
+                access_level='public', priority='low', callback_url=None,
+                gzip=False, apikey=None):
     """
         See submit for details. All URLs will be queued with the same settings.
 
@@ -228,10 +242,10 @@ def mass_submit(urls, useragent=None, referer=None,
     query['priority'] = priority
     if callback_url is not None:
         query['callback_url'] = callback_url
-    return __query(query)
+    return __query(query, gzip, apikey)
 
 
-def queue_status(queue_id):
+def queue_status(queue_id, gzip=False, apikey=None):
     """
         Polls the current status of a queued URL. Normal processing time
         for a URL is about 1 minute.
@@ -242,11 +256,12 @@ def queue_status(queue_id):
     """
     query = {'method': 'queue_status'}
     query['queue_id'] = queue_id
-    return __query(query)
+    return __query(query, gzip=False, apikey=None)
 
 
 def report(report_id, recent_limit=0, include_details=False,
-           include_screenshot=False, include_domain_graph=False):
+           include_screenshot=False, include_domain_graph=False,
+           gzip=False, apikey=None):
     """
         This extracts data for a given report, the amount of data and
         what is included is dependent on the parameters set and the
@@ -298,10 +313,10 @@ def report(report_id, recent_limit=0, include_details=False,
         query['include_screenshot'] = True
     if include_domain_graph:
         query['include_domain_graph'] = True
-    return __query(query)
+    return __query(query, gzip, apikey)
 
 
-def report_list(timestamp=None, limit=50):
+def report_list(timestamp=None, limit=50, gzip=False, apikey=None):
     """
     Returns a list of reports created from the given timestamp, if it’s
     not included the most recent reports will be returned.
@@ -339,11 +354,12 @@ def report_list(timestamp=None, limit=50):
                           'Unable to convert time to timestamp: ' + str(time)})
     query['timestamp'] = timestamp
     query['limit'] = limit
-    return __query(query)
+    return __query(query, gzip, apikey)
 
 
 def search(q, search_type='string', result_type='reports',
-           url_matching='url_host', date_from=None, deep=False):
+           url_matching='url_host', date_from=None, deep=False,
+           gzip=False, apikey=None):
     """
         Search in the database
 
@@ -413,10 +429,10 @@ def search(q, search_type='string', result_type='reports',
     query['from'] = timestamp
     if deep:
         query['deep'] = True
-    return __query(query)
+    return __query(query, gzip, apikey)
 
 
-def reputation(q):
+def reputation(q, gzip=False, apikey=None):
     """
         Searches a reputation list of URLs detected over the last month.
         The search query can be a domain or an IP.
@@ -429,4 +445,4 @@ def reputation(q):
 
     query = {'method': 'reputation'}
     query['q'] = q
-    return __query(query)
+    return __query(query, gzip, apikey)

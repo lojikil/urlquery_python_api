@@ -97,17 +97,17 @@ of the API call. This is called "_response_"
 API Key
 =======
 
-If you have an API Key, put it in apikey.py with the variable name 'key'.
+If you have an API Key, put it in a config file, and pass it into the API methods via the `apikey` parameter.
 
 Gzip
 ====
 
-To get the responses of the api gzip'ed, change 'gzip_default' to True.
+To get the responses of the api gzip'ed, set the `gzip` parameter to `True`.
 
 Dependencies
 ============
 
-If `pip` is available, any prerequirements may be added via the usual "requirements" dance:
+If `pip` is available, any prerequisites may be added via the usual "requirements" dance:
 
 `pip install -r requirements.txt`
 
