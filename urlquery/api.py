@@ -24,7 +24,6 @@ __search_types = ['string', 'regexp', 'ids_alert',
                   'urlquery_alert', 'js_script_hash']
 __result_types = ['reports', 'url_list']
 __url_matchings = ['url_host', 'url_path']
-cfg = None
 
 def __set_default_values(gzip=False, apikey=None):
     to_return = {}
