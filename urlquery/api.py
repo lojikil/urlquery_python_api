@@ -13,6 +13,7 @@ import time
 
 
 base_url = 'https://uqapi.net/v3/json'
+gzip_default = False
 
 # XXX: the sheer number of globals makes me wonder if
 #      this wouldn't be better as a class...
@@ -33,7 +34,7 @@ def __set_default_values(gzip=False, apikey=None):
     else:
         to_return['key'] = ''
 
-    if gzip:
+    if gzip_default or gzip:
         to_return['gzip'] = True
 
     return to_return
