@@ -26,6 +26,7 @@ __search_types = ['string', 'regexp', 'ids_alert',
 __result_types = ['reports', 'url_list']
 __url_matchings = ['url_host', 'url_path']
 
+
 def __set_default_values(gzip=False, apikey=None):
     to_return = {}
 
@@ -47,9 +48,6 @@ def __query(query, gzip=False, apikey=None):
     r = requests.post(base_url, data=json.dumps(query))
     return r.json()
 
-# XXX: Kinda messy to have `gzip` passed into each URL feed...
-#      almost need an "initial" setup function, kinda like 
-#      an initializer...
 
 def urlfeed(feed='unfiltered', interval='hour', timestamp=None,
             gzip=False, apikey=None):
@@ -140,7 +138,8 @@ def submit(url, useragent=None, referer=None, priority='low',
 
         :param access_level: Set accessibility of the report
             * *public*: URL is publicly available on the site (default)
-            * *nonpublic*: Shared with other security organizations/researchers.
+            * *nonpublic*: Shared with other security organizations or
+                           researchers.
             * *private*: Only submitting key has access.
 
         :param callback_url: Results are POSTed back to the provided

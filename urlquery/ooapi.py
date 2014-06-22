@@ -41,7 +41,6 @@ class URLQuery(object):
         else:
             self.apikey = ''
 
-
     def query(self, query, gzip=False, apikey=None):
         if query.get('error') is not None:
             return query
@@ -57,7 +56,6 @@ class URLQuery(object):
         r = requests.post(base_url, data=json.dumps(query))
         return r.json()
 
-
     def urlfeed(self, feed='unfiltered', interval='hour', timestamp=None,
                 gzip=False, apikey=None):
         """
@@ -67,9 +65,9 @@ class URLQuery(object):
 
                 :param feed: Currently there are two distinct feed:
 
-                    * *unfiltered*: contains all URL received by the service, as
-                        with other API calls some restrictions to the feed might
-                        apply depending. (default)
+                    * *unfiltered*: contains all URL received by the service,
+                        as with other API calls some restrictions to the feed
+                        might apply depending. (default)
                     * *flagged*: contains URLs flagged by some detection by
                         urlquery, it will not contain data triggered by IDS
                         alerts as that not possible to correlate correctly to a
@@ -92,8 +90,10 @@ class URLQuery(object):
                     {
                         "start_time" : string,
                         "end_time"   : string,
-                        "feed"       : [URLs]    Array of URL objects (see README)
+                        "feed"       : [URLs]    Array of URL objects
                     }
+
+                For more information on "feed", please see the README
 
         """
         query = {'method': 'urlfeed'}
@@ -124,7 +124,6 @@ class URLQuery(object):
         query['timestamp'] = timestamp
         return self.query(query, gzip, apikey)
 
-
     def submit(self, url, useragent=None, referer=None, priority='low',
                access_level='public', callback_url=None, submit_vt=False,
                save_only_alerted=False, gzip=False, apikey=None):
@@ -150,7 +149,8 @@ class URLQuery(object):
 
             :param access_level: Set accessibility of the report
                 * *public*: URL is publicly available on the site (default)
-                * *nonpublic*: Shared with other security organizations/researchers.
+                * *nonpublic*: Shared with other security organizations or
+                               researchers.
                 * *private*: Only submitting key has access.
 
             :param callback_url: Results are POSTed back to the provided
@@ -215,7 +215,6 @@ class URLQuery(object):
             query['save_only_alerted'] = True
         return self.query(query, gzip, apikey)
 
-
     def user_agent_list(self, gzip=False, apikey=None):
         """
             Returns a list of accepted user agent strings. These might
@@ -226,12 +225,12 @@ class URLQuery(object):
         query = {'method': 'user_agent_list'}
         return self.query(query, gzip, apikey)
 
-
     def mass_submit(self, urls, useragent=None, referer=None,
                     access_level='public', priority='low', callback_url=None,
                     gzip=False, apikey=None):
         """
-            See submit for details. All URLs will be queued with the same settings.
+            See submit for details. All URLs will be queued with the same
+            settings.
 
             :return:
 
@@ -257,7 +256,6 @@ class URLQuery(object):
             query['callback_url'] = callback_url
         return self.query(query, gzip, apikey)
 
-
     def queue_status(self, queue_id, gzip=False, apikey=None):
         """
             Polls the current status of a queued URL. Normal processing time
@@ -270,7 +268,6 @@ class URLQuery(object):
         query = {'method': 'queue_status'}
         query['queue_id'] = queue_id
         return self.query(query, gzip=False, apikey=None)
-
 
     def report(self, report_id, recent_limit=0, include_details=False,
                include_screenshot=False, include_domain_graph=False,
@@ -298,7 +295,8 @@ class URLQuery(object):
                 Default: False
 
             :param include_domain_graph: A domain graph is included in the
-                report as a base64. The mime type of the image is also included.
+                report as a base64. The mime type of the image is also
+                included.
                 Default: False
 
 
@@ -327,7 +325,6 @@ class URLQuery(object):
         if include_domain_graph:
             query['include_domain_graph'] = True
         return self.query(query, gzip, apikey)
-
 
     def report_list(self, timestamp=None, limit=50, gzip=False, apikey=None):
         """
@@ -364,11 +361,11 @@ class URLQuery(object):
                 timestamp = time.mktime(parse(timestamp).utctimetuple())
             except:
                 query.update({'error':
-                              'Unable to convert time to timestamp: ' + str(time)})
+                              'Unable to convert time to timestamp: ' +
+                              str(time)})
         query['timestamp'] = timestamp
         query['limit'] = limit
         return self.query(query, gzip, apikey)
-
 
     def search(q, search_type='string', result_type='reports',
                url_matching='url_host', date_from=None, deep=False,
@@ -401,7 +398,7 @@ class URLQuery(object):
                 * *url_path*: match against path
 
 
-            :param date_from: Unix epoch timestamp for starting searching point.
+            :param date_from: Unix epoch timestamp for starting search point.
                 Default: If None, setted to datetime.now()
 
 
@@ -443,7 +440,6 @@ class URLQuery(object):
         if deep:
             query['deep'] = True
         return self.query(query, gzip, apikey)
-
 
     def reputation(self, q, gzip=False, apikey=None):
         """
