@@ -15,9 +15,6 @@ import time
 base_url = 'https://uqapi.net/v3/json'
 gzip_default = False
 
-# XXX: the sheer number of globals makes me wonder if
-#      this wouldn't be better as a class...
-
 __feed_type = ['unfiltered', 'flagged']
 __intervals = ['hour', 'day']
 __priorities = ['urlfeed', 'low', 'medium', 'high']
