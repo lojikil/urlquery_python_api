@@ -19,7 +19,7 @@ gzip_default = False
 class URLQuery(object):
     __slots__ = ["_feed_type", "_intervals", "_priorities", "_search_types",
                  "_result_types", "_url_types", "gzip_default", "base_url",
-                 "apikey"]
+                 "_url_matchings", "apikey"]
 
     def __init__(self, base_url=None, gzip_default=False, apikey=None):
         self._feed_type = ['unfiltered', 'flagged']
@@ -42,14 +42,18 @@ class URLQuery(object):
             self.apikey = ''
 
 
-    def query(self, query, gzip=False):
+    def query(self, query, gzip=False, apikey=None):
         if query.get('error') is not None:
             return query
 
         if self.gzip_default or gzip:
             query['gzip'] = True
 
-        query['key'] = self.apikey
+        if apikey is not None:
+            query['key'] = apikey
+        else:
+            query['key'] = self.apikey
+
         r = requests.post(base_url, data=json.dumps(query))
         return r.json()
 
