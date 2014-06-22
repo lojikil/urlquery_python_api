@@ -15,6 +15,10 @@ import time
 base_url = 'https://uqapi.net/v3/json'
 gzip_default = False
 
+# XXX: Would be nice if the below would return objects rather than JSON...
+#      dunno how well that would work with the whole flow of everything, but
+#      it might be interesting.
+
 
 class URLQuery(object):
     __slots__ = ["_feed_type", "_intervals", "_priorities", "_search_types",
